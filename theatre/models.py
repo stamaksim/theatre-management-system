@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.db import models
+from django.db.models import UniqueConstraint
 
 
 class Play(models.Model):
@@ -45,6 +46,14 @@ class Ticket(models.Model):
     seat = models.IntegerField()
     performance = models.ForeignKey(Performance, on_delete=models.CASCADE)
     reservation = models.ForeignKey("Reservation", on_delete=models.CASCADE)
+
+    class Meta:
+        constraints = [
+            UniqueConstraint(
+                fields=["seat", "performance"],
+                name="unique_ticket_seat_performance"
+            )
+        ]
 
     def __str__(self):
         return f"{str(self.performance)} (row: {self.row}, seat: {self.seat})"

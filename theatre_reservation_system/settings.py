@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-&02+t1-^=!e%i7k*yw7!(d%&d#p#g1b7sv()!q@d*f^5m19y(h
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
+INTERNAL_IPS = ["127.0.0.1",]
 
 # Application definition
 
@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     "rest_framework",
+    "debug_toolbar",
     "theatre.apps.TheatreConfig",
     "user.apps.UserConfig"
 ]
@@ -46,6 +47,7 @@ AUTH_USER_MODEL = "user.User"
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    "debug_toolbar.middleware.DebugToolbarMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
