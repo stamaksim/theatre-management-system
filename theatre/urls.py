@@ -4,7 +4,6 @@ from theatre.views import (
     PlayViewSet,
     TheatreHallViewSet,
     PerformanceViewSet,
-    TicketViewSet,
     ReservationViewSet,
     ActorViewSet,
     GenreViewSet
@@ -16,7 +15,6 @@ app_name = "theatre"
 router.register("plays", PlayViewSet)
 router.register("theatre_halls", TheatreHallViewSet)
 router.register("performance", PerformanceViewSet)
-router.register("ticket", TicketViewSet)
 router.register("reservation", ReservationViewSet)
 router.register("actor", ActorViewSet)
 router.register("genre", GenreViewSet)
