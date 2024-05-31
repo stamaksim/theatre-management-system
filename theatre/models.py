@@ -1,7 +1,17 @@
+import pathlib
+import uuid
+
 from django.conf import settings
 from django.db import models
 from django.db.models import UniqueConstraint
 from rest_framework.exceptions import ValidationError
+from django.utils.text import slugify
+
+
+def play_image_file_path(play: "Play", filename: str) -> pathlib.Path:
+    ext = pathlib.Path(filename).suffix
+    filename = f"{slugify(play.title)}-{uuid.uuid4()}{ext}"
+    return pathlib.Path("uploads/plays") / pathlib.Path(filename)
 
 
 class Play(models.Model):
@@ -9,6 +19,7 @@ class Play(models.Model):
     description = models.TextField(max_length=255)
     actors = models.ManyToManyField("Actor")
     genres = models.ManyToManyField("Genre")
+    image = models.ImageField(null=True, upload_to=play_image_file_path)
 
     class Meta:
         ordering = ["title"]
