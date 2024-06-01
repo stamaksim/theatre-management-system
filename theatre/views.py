@@ -1,5 +1,8 @@
 from datetime import datetime
 from django.db.models import F, Count
+from drf_spectacular import openapi
+from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import mixins, viewsets, status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
@@ -33,20 +36,14 @@ from theatre.serializers import (
 )
 
 
-class BaseViewSetMixin:
-    authentication_classes = (TokenAuthentication,)
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
-
-
 class PlayViewSet(
     ReadOnlyModelViewSet,
     mixins.CreateModelMixin,
-    BaseViewSetMixin,
     GenericViewSet
 ):
     queryset = Play.objects.prefetch_related("actors", "genres")
     serializer_class = PlaySerializer
-    # permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
 
     @staticmethod
     def _params_to_ints(qs):
@@ -94,6 +91,29 @@ class PlayViewSet(
         serializer.save()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "title",
+                type=openapi.OpenApiTypes.STR,
+                description="Filter by play title",
+            ),
+            OpenApiParameter(
+                "genres",
+                type=openapi.OpenApiTypes.INT,
+                description="Filter by movie genres",
+            ),
+            OpenApiParameter(
+                name="actors",
+                type=openapi.OpenApiTypes.INT,
+                description="Filter by movie actors"
+            )
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        """Get list of movies."""
+        return super().list(request, *args, **kwargs)
+
 
 class TheatreHallViewSet(
     mixins.CreateModelMixin,
@@ -103,6 +123,27 @@ class TheatreHallViewSet(
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "name", OpenApiTypes.STR,
+                description="Filter by theatre hall name (not implemented)"
+            ),
+            OpenApiParameter(
+                "rows", OpenApiTypes.INT,
+                description="Filter by number of rows (not implemented)"
+            ),
+            OpenApiParameter(
+                "seats_in_row", OpenApiTypes.INT,
+                description="Filter by number of seats in a row (not implemented)"
+            )
+        ],
+        responses={200: TheatreHallSerializer(many=True)}
+    )
+    def list(self, request, *args, **kwargs):
+        """Get list of theatre halls."""
+        return super().list(request, *args, **kwargs)
 
 
 class PerformanceViewSet(viewsets.ModelViewSet):
