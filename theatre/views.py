@@ -182,6 +182,25 @@ class PerformanceViewSet(viewsets.ModelViewSet):
 
         return PerformanceSerializer
 
+    @extend_schema(
+        parameters=[
+            OpenApiParameter(
+                "date",
+                type=openapi.OpenApiTypes.DATE,
+                description="Filter by date",
+            ),
+            OpenApiParameter(
+                "play",
+                type=openapi.OpenApiTypes.INT,
+                description="Filter by play",
+            ),
+
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        """Get list of performance."""
+        return super().list(request, *args, **kwargs)
+
 
 class ReservationPagination(PageNumberPagination):
     page_size = 3
@@ -215,6 +234,7 @@ class ReservationViewSet(viewsets.ModelViewSet):
 class ActorViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
     GenericViewSet
 ):
     queryset = Actor.objects.all()
@@ -225,6 +245,7 @@ class ActorViewSet(
 class GenreViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
     GenericViewSet
 ):
     queryset = Genre.objects.all()
