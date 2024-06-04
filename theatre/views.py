@@ -4,7 +4,6 @@ from drf_spectacular import openapi
 from drf_spectacular.types import OpenApiTypes
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from rest_framework import mixins, viewsets, status
-from rest_framework.authentication import TokenAuthentication
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.permissions import IsAuthenticated
@@ -118,32 +117,12 @@ class PlayViewSet(
 class TheatreHallViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
+    mixins.RetrieveModelMixin,
     GenericViewSet
 ):
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
-
-    @extend_schema(
-        parameters=[
-            OpenApiParameter(
-                "name", OpenApiTypes.STR,
-                description="Filter by theatre hall name (not implemented)"
-            ),
-            OpenApiParameter(
-                "rows", OpenApiTypes.INT,
-                description="Filter by number of rows (not implemented)"
-            ),
-            OpenApiParameter(
-                "seats_in_row", OpenApiTypes.INT,
-                description="Filter by number of seats in a row (not implemented)"
-            )
-        ],
-        responses={200: TheatreHallSerializer(many=True)}
-    )
-    def list(self, request, *args, **kwargs):
-        """Get list of theatre halls."""
-        return super().list(request, *args, **kwargs)
 
 
 class PerformanceViewSet(viewsets.ModelViewSet):
@@ -200,6 +179,10 @@ class PerformanceViewSet(viewsets.ModelViewSet):
     def list(self, request, *args, **kwargs):
         """Get list of performance."""
         return super().list(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        """Disallow deletion of performances."""
+        return Response(status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
 
 class ReservationPagination(PageNumberPagination):
