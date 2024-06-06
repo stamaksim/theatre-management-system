@@ -13,10 +13,7 @@ def detail_url(actor_id):
 
 
 def sample_actor(**params) -> Actor:
-    defaults = {
-        "first_name": "Testname",
-        "last_name": "Testlastname"
-    }
+    defaults = {"first_name": "Testname", "last_name": "Testlastname"}
     defaults.update(params)
     return Actor.objects.create(**defaults)
 
@@ -34,8 +31,7 @@ class AuthenticatedActorApiTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="test@test.test",
-            password="testpassword"
+            email="test@test.test", password="testpassword"
         )
         self.client.force_authenticate(self.user)
 
@@ -56,9 +52,7 @@ class AdminActorApiTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="admin@test.test",
-            password="testpassword",
-            is_staff=True
+            email="admin@test.test", password="testpassword", is_staff=True
         )
         self.client.force_authenticate(self.user)
 

@@ -15,7 +15,7 @@ from theatre.models import (
     Performance,
     Reservation,
     Actor,
-    Genre
+    Genre,
 )
 from theatre.permissions import IsAdminOrIfAuthenticatedReadOnly
 
@@ -31,18 +31,16 @@ from theatre.serializers import (
     PerformanceListSerializer,
     PerformanceDetailSerializer,
     ReservationListSerializer,
-    PlayImageSerializer
+    PlayImageSerializer,
 )
 
 
 class PlayViewSet(
-    ReadOnlyModelViewSet,
-    mixins.CreateModelMixin,
-    GenericViewSet
+    ReadOnlyModelViewSet, mixins.CreateModelMixin, GenericViewSet
 ):
     queryset = Play.objects.prefetch_related("actors", "genres")
     serializer_class = PlaySerializer
-    permission_classes = (IsAdminOrIfAuthenticatedReadOnly, )
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
     def _params_to_ints(qs):
@@ -53,7 +51,7 @@ class PlayViewSet(
         if self.action == "list":
             return PlayListSerializer
 
-        elif self.action =="retrieve":
+        elif self.action == "retrieve":
             return PlayDetailSerializer
 
         elif self.action == "upload_image":
@@ -105,8 +103,8 @@ class PlayViewSet(
             OpenApiParameter(
                 name="actors",
                 type=openapi.OpenApiTypes.INT,
-                description="Filter by movie actors"
-            )
+                description="Filter by movie actors",
+            ),
         ]
     )
     def list(self, request, *args, **kwargs):
@@ -118,7 +116,7 @@ class TheatreHallViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    GenericViewSet
+    GenericViewSet,
 ):
     queryset = TheatreHall.objects.all()
     serializer_class = TheatreHallSerializer
@@ -126,15 +124,17 @@ class TheatreHallViewSet(
 
 
 class PerformanceViewSet(viewsets.ModelViewSet):
-    queryset = Performance.objects.all().select_related(
-        "play",
-        "theatre_hall"
-    ).annotate(
-        tickets_available=(
-            F("theatre_hall__rows") * F("theatre_hall__seats_in_row")
-            - Count("ticket")
+    queryset = (
+        Performance.objects.all()
+        .select_related("play", "theatre_hall")
+        .annotate(
+            tickets_available=(
+                F("theatre_hall__rows") * F("theatre_hall__seats_in_row")
+                - Count("ticket")
+            )
         )
-    ).order_by("id")
+        .order_by("id")
+    )
     serializer_class = PerformanceListSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
@@ -156,7 +156,7 @@ class PerformanceViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == "list":
             return PerformanceListSerializer
-        elif self.action =="retrieve":
+        elif self.action == "retrieve":
             return PerformanceDetailSerializer
 
         return PerformanceSerializer
@@ -173,7 +173,6 @@ class PerformanceViewSet(viewsets.ModelViewSet):
                 type=openapi.OpenApiTypes.INT,
                 description="Filter by play",
             ),
-
         ]
     )
     def list(self, request, *args, **kwargs):
@@ -192,17 +191,17 @@ class ReservationPagination(PageNumberPagination):
 
 class ReservationViewSet(viewsets.ModelViewSet):
     queryset = Reservation.objects.prefetch_related(
-        "tickets__performance__play",
-        "tickets__performance__theatre_hall"
+        "tickets__performance__play", "tickets__performance__theatre_hall"
     )
     serializer_class = ReservationSerializer
     pagination_class = ReservationPagination
     permission_classes = (IsAuthenticated,)
 
     def get_queryset(self):
-        return Reservation.objects.filter(user=self.request.user).prefetch_related(
-            "tickets__performance__play",
-            "tickets__performance__theatre_hall"
+        return Reservation.objects.filter(
+            user=self.request.user
+        ).prefetch_related(
+            "tickets__performance__play", "tickets__performance__theatre_hall"
         )
 
     def get_serializer_class(self):
@@ -218,7 +217,7 @@ class ActorViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    GenericViewSet
+    GenericViewSet,
 ):
     queryset = Actor.objects.all()
     serializer_class = ActorSerializer
@@ -229,7 +228,7 @@ class GenreViewSet(
     mixins.CreateModelMixin,
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    GenericViewSet
+    GenericViewSet,
 ):
     queryset = Genre.objects.all()
     serializer_class = GenreSerializer

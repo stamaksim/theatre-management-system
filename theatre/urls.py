@@ -6,7 +6,7 @@ from theatre.views import (
     PerformanceViewSet,
     ReservationViewSet,
     ActorViewSet,
-    GenreViewSet
+    GenreViewSet,
 )
 
 router = routers.DefaultRouter()

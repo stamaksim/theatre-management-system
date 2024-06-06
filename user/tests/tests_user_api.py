@@ -31,11 +31,12 @@ class UserLoginTest(TestCase):
         invalid_passwords = ["wrongpassword", "12345"]
 
         for invalid_password in invalid_passwords:
-            logged_in = self.client.login(username=email, password=invalid_password)
+            logged_in = self.client.login(
+                username=email, password=invalid_password
+            )
             self.assertFalse(logged_in)
 
             # Check for messages only if they exist
             messages = self.client.session.get("messages")
             if messages:
                 self.assertIn(messages.ERROR, messages)
-

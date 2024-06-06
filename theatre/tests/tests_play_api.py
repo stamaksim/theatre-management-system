@@ -124,7 +124,7 @@ class AdminPlayTest(TestCase):
             "title": "Gaidamaku",
             "description": "A trilling play",
             "actors": [actor.id],
-            "genres": [genre.id]
+            "genres": [genre.id],
         }
 
         res = self.client.post(PLAY_URL, payload)
@@ -133,7 +133,10 @@ class AdminPlayTest(TestCase):
 
         for key in payload:
             if key in ["actors", "genres"]:
-                self.assertEqual(list(payload[key]), list(getattr(play, key).values_list('id', flat=True)))
+                self.assertEqual(
+                    list(payload[key]),
+                    list(getattr(play, key).values_list("id", flat=True)),
+                )
             else:
                 self.assertEqual(payload[key], getattr(play, key))
 

@@ -20,8 +20,7 @@ def detail_url(reservation_id):
 def sample_reservation(user=None, **params) -> Reservation:
     if user is None:
         user = get_user_model().objects.create_user(
-            email="test@test.test",
-            password="testpassword"
+            email="test@test.test", password="testpassword"
         )
     defaults = {"user": user, "created_at": "03.06.2024"}
     defaults.update(params)
@@ -75,8 +74,7 @@ class AuthenticatedReservationApiTest(TestCase):
 
     def test_retrieve_other_user_reservation(self):
         other_user = get_user_model().objects.create_user(
-            email="other@test.test",
-            password="testpassword"
+            email="other@test.test", password="testpassword"
         )
         reservation = sample_reservation(user=other_user)
         url = detail_url(reservation.id)

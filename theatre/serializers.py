@@ -9,19 +9,14 @@ from theatre.models import (
     Ticket,
     Reservation,
     Actor,
-    Genre
+    Genre,
 )
 
 
 class ActorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Actor
-        fields = (
-            "id",
-            "first_name",
-            "last_name",
-            "full_name"
-        )
+        fields = ("id", "first_name", "last_name", "full_name")
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -41,14 +36,7 @@ class PlaySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Play
-        fields = (
-            "id",
-            "title",
-            "description",
-            "actors",
-            "genres",
-            "image"
-        )
+        fields = ("id", "title", "description", "actors", "genres", "image")
 
 
 class PlayListSerializer(serializers.ModelSerializer):
@@ -75,40 +63,25 @@ class PlayDetailSerializer(PlaySerializer):
 
     class Meta:
         model = Play
-        fields = (
-            "id",
-            "title",
-            "description",
-            "actors",
-            "genres"
-        )
+        fields = ("id", "title", "description", "actors", "genres")
 
 
 class TheatreHallSerializer(serializers.ModelSerializer):
     class Meta:
         model = TheatreHall
-        fields = (
-            "id",
-            "name",
-            "rows",
-            "seats_in_row",
-            "capacity"
-        )
+        fields = ("id", "name", "rows", "seats_in_row", "capacity")
 
 
 class PerformanceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Performance
-        fields = (
-            "id",
-            "play",
-            "theatre_hall",
-            "show_time"
-        )
+        fields = ("id", "play", "theatre_hall", "show_time")
 
 
 class PerformanceListSerializer(PerformanceSerializer):
-    performance_title = serializers.CharField(source="play.title", read_only=True)
+    performance_title = serializers.CharField(
+        source="play.title", read_only=True
+    )
     theatre_hall_name = serializers.CharField(
         source="theatre_hall.name", read_only=True
     )
@@ -125,7 +98,7 @@ class PerformanceListSerializer(PerformanceSerializer):
             "performance_title",
             "theatre_hall_name",
             "theatre_hall_capacity",
-            "tickets_available"
+            "tickets_available",
         )
 
 
@@ -136,8 +109,7 @@ class TicketSerializer(serializers.ModelSerializer):
             # "id",
             "row",
             "seat",
-            "performance"
-
+            "performance",
         )
 
     def validate(self, attrs):
@@ -146,7 +118,7 @@ class TicketSerializer(serializers.ModelSerializer):
             attrs["row"],
             attrs["seat"],
             attrs["performance"].theatre_hall,
-            ValidationError
+            ValidationError,
         )
         return data
 
@@ -167,21 +139,19 @@ class PerformanceDetailSerializer(PerformanceSerializer):
 
     class Meta:
         model = Performance
-        fields = (
-            "id",
-            "show_time",
-            "play",
-            "theatre_hall",
-            "taken_seats"
-        )
+        fields = ("id", "show_time", "play", "theatre_hall", "taken_seats")
 
     def get_taken_seats(self, instance):
         tickets = instance.ticket_set.all()
-        return [f"row: {ticket.row}, seat: {ticket.seat}" for ticket in tickets]
+        return [
+            f"row: {ticket.row}, seat: {ticket.seat}" for ticket in tickets
+        ]
 
 
 class ReservationSerializer(serializers.ModelSerializer):
-    tickets = TicketListSerializer(many=True, read_only=False, allow_empty=False)
+    tickets = TicketListSerializer(
+        many=True, read_only=False, allow_empty=False
+    )
 
     class Meta:
         model = Reservation
@@ -196,10 +166,7 @@ class ReservationSerializer(serializers.ModelSerializer):
             tickets_data = validated_data.pop("tickets")
             reservation = Reservation.objects.create(**validated_data)
             for ticket_data in tickets_data:
-                Ticket.objects.create(
-                    reservation=reservation,
-                    **ticket_data
-                )
+                Ticket.objects.create(reservation=reservation, **ticket_data)
             return reservation
 
 

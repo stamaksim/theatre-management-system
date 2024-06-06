@@ -33,8 +33,7 @@ class AuthenticatedGenreApiTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="test@test.test",
-            password="testpassword"
+            email="test@test.test", password="testpassword"
         )
         self.client.force_authenticate(self.user)
 
@@ -55,9 +54,7 @@ class AdminGenreApiTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="admin@test.test",
-            password="testpassword",
-            is_staff=True
+            email="admin@test.test", password="testpassword", is_staff=True
         )
         self.client.force_authenticate(self.user)
 

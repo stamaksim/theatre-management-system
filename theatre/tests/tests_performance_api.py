@@ -17,14 +17,16 @@ def sample_play(title="Testplay"):
 
 
 def sample_theatre_hall(name="TestHall", rows=10, seats_in_row=10):
-    return TheatreHall.objects.create(name=name, rows=rows, seats_in_row=seats_in_row)
+    return TheatreHall.objects.create(
+        name=name, rows=rows, seats_in_row=seats_in_row
+    )
 
 
 def sample_performance(**params) -> Performance:
     defaults = {
         "play": sample_play(),
         "theatre_hall": sample_theatre_hall(),
-        "show_time": "2024-06-03"
+        "show_time": "2024-06-03",
     }
     defaults.update(params)
     return Performance.objects.create(**defaults)
@@ -43,8 +45,7 @@ class AuthenticatedPerformanceApiTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="test@test.test",
-            password="testpassword"
+            email="test@test.test", password="testpassword"
         )
         self.client.force_authenticate(self.user)
 
@@ -56,7 +57,11 @@ class AuthenticatedPerformanceApiTest(TestCase):
         self.assertEqual(len(res.data), performances.count())
 
     def test_create_performance_forbidden(self):
-        payload = {"play": sample_play().id, "theatre_hall": sample_theatre_hall().id, "show_time": "2024-06-03"}
+        payload = {
+            "play": sample_play().id,
+            "theatre_hall": sample_theatre_hall().id,
+            "show_time": "2024-06-03",
+        }
         res = self.client.post(PERFORMANCE_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
 
@@ -65,16 +70,18 @@ class AdminPerformanceApiTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="admin@test.test",
-            password="testpassword",
-            is_staff=True
+            email="admin@test.test", password="testpassword", is_staff=True
         )
         self.client.force_authenticate(self.user)
 
     def test_create_performance(self):
         play = sample_play()
         theatre_hall = sample_theatre_hall()
-        payload = {"play": play.id, "theatre_hall": theatre_hall.id, "show_time": "2024-06-03"}
+        payload = {
+            "play": play.id,
+            "theatre_hall": theatre_hall.id,
+            "show_time": "2024-06-03",
+        }
         res = self.client.post(PERFORMANCE_URL, payload)
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
@@ -82,7 +89,9 @@ class AdminPerformanceApiTest(TestCase):
 
         self.assertEqual(payload["play"], performance.play.id)
         self.assertEqual(payload["theatre_hall"], performance.theatre_hall.id)
-        self.assertEqual(payload["show_time"], performance.show_time.strftime("%Y-%m-%d"))
+        self.assertEqual(
+            payload["show_time"], performance.show_time.strftime("%Y-%m-%d")
+        )
 
     def test_delete_performance_not_allowed(self):
         performance = sample_performance()
@@ -90,24 +99,23 @@ class AdminPerformanceApiTest(TestCase):
         res = self.client.delete(url)
         self.assertEqual(res.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
 
-
-
     def test_filter_performance(self):
         play1 = sample_play(title="Ferdinand")
         play2 = sample_play(title="Kaidasheva simya")
         theatre_hall = sample_theatre_hall()
 
-        performance_1 = sample_performance(play=play1, theatre_hall=theatre_hall, show_time="2024-06-01")
-        performance_2 = sample_performance(play=play2, theatre_hall=theatre_hall, show_time="2024-06-02")
+        performance_1 = sample_performance(
+            play=play1, theatre_hall=theatre_hall, show_time="2024-06-01"
+        )
+        performance_2 = sample_performance(
+            play=play2, theatre_hall=theatre_hall, show_time="2024-06-02"
+        )
 
         res = self.client.get(
             PERFORMANCE_URL,
-            {
-                "date": "2024-06-01",
-                "play": str(play1.id)
-            },
+            {"date": "2024-06-01", "play": str(play1.id)},
         )
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
-        self.assertEqual(res.data[0]['id'], performance_1.id)
+        self.assertEqual(res.data[0]["id"], performance_1.id)

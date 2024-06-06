@@ -13,11 +13,7 @@ def detail_theatre_hall_url(theatre_hall_id):
 
 
 def sample_theatre_hall(**params) -> TheatreHall:
-    defaults = {
-        "name": "Oskar",
-        "rows": 1,
-        "seats_in_row": 1
-    }
+    defaults = {"name": "Oskar", "rows": 1, "seats_in_row": 1}
     defaults.update(params)
     return TheatreHall.objects.create(**defaults)
 
@@ -35,8 +31,7 @@ class AuthenticatedTheatreHallApiTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="test@test.test",
-            password="testpassword"
+            email="test@test.test", password="testpassword"
         )
         self.client.force_authenticate(self.user)
 
@@ -57,9 +52,7 @@ class AdminTheatreHallApiTest(TestCase):
     def setUp(self):
         self.client = APIClient()
         self.user = get_user_model().objects.create_user(
-            email="admin@test.test",
-            password="testpassword",
-            is_staff=True
+            email="admin@test.test", password="testpassword", is_staff=True
         )
         self.client.force_authenticate(self.user)
 
@@ -69,10 +62,14 @@ class AdminTheatreHallApiTest(TestCase):
         self.assertEqual(res.status_code, status.HTTP_201_CREATED)
 
         theatre_hall_id = res.data["id"]
-        theatre_hall_from_response = TheatreHall.objects.get(id=theatre_hall_id)
+        theatre_hall_from_response = TheatreHall.objects.get(
+            id=theatre_hall_id
+        )
 
         for key in payload:
-            self.assertEqual(payload[key], getattr(theatre_hall_from_response, key))
+            self.assertEqual(
+                payload[key], getattr(theatre_hall_from_response, key)
+            )
 
     def test_delete_theatre_hall_not_allowed(self):
         theatre_hall = sample_theatre_hall()

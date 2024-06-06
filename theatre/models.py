@@ -6,6 +6,7 @@ from django.db import models
 from django.db.models import UniqueConstraint
 from rest_framework.exceptions import ValidationError
 from django.utils.text import slugify
+from typing import Type
 
 
 def play_image_file_path(play: "Play", filename: str) -> pathlib.Path:
@@ -24,7 +25,7 @@ class Play(models.Model):
     class Meta:
         ordering = ["title"]
 
-    def __str__(self):
+    def __str__(self: "Play") -> str:
         return self.title
 
 
@@ -34,10 +35,10 @@ class TheatreHall(models.Model):
     seats_in_row = models.IntegerField()
 
     @property
-    def capacity(self):
+    def capacity(self: "TheatreHall") -> int:
         return self.rows * self.seats_in_row
 
-    def __str__(self):
+    def __str__(self: "TheatreHall") -> str:
         return self.name
 
 
@@ -49,7 +50,7 @@ class Performance(models.Model):
     class Meta:
         ordering = ["-show_time"]
 
-    def __str__(self):
+    def __str__(self: "Performance") -> str:
         return self.play.title + " " + str(self.show_time)
 
 
@@ -58,24 +59,27 @@ class Ticket(models.Model):
     seat = models.IntegerField()
     performance = models.ForeignKey(Performance, on_delete=models.CASCADE)
     reservation = models.ForeignKey(
-        "Reservation",
-        on_delete=models.CASCADE,
-        related_name="tickets"
+        "Reservation", on_delete=models.CASCADE, related_name="tickets"
     )
 
     class Meta:
         constraints = [
             UniqueConstraint(
                 fields=["seat", "performance"],
-                name="unique_ticket_seat_performance"
+                name="unique_ticket_seat_performance",
             )
         ]
 
-    def __str__(self):
+    def __str__(self: "Ticket") -> str:
         return f"{str(self.performance)} (row: {self.row}, seat: {self.seat})"
 
     @staticmethod
-    def validate_ticket(row, seat, theatre_hall, error_to_raise):
+    def validate_ticket(
+            row: int,
+            seat: int,
+            theatre_hall: "TheatreHall",
+            error_to_raise: Type[Exception]
+    ) -> None:
         for ticket_attr_value, ticket_attr_name, theatre_hall_attr_name in [
             (row, "row", "rows"),
             (seat, "seat", "seats_in_row"),
@@ -91,7 +95,7 @@ class Ticket(models.Model):
                     }
                 )
 
-    def clean(self):
+    def clean(self: "Ticket") -> None:
         Ticket.validate_ticket(
             self.row,
             self.seat,
@@ -105,7 +109,7 @@ class Ticket(models.Model):
         force_update=False,
         using=None,
         update_fields=None,
-    ):
+    ) -> None:
         self.full_clean()
         return super(Ticket, self).save(
             force_insert, force_update, using, update_fields
@@ -114,7 +118,9 @@ class Ticket(models.Model):
 
 class Reservation(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE
+    )
 
     def __str__(self):
         return str(self.created_at)
