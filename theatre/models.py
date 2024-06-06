@@ -18,8 +18,8 @@ def play_image_file_path(play: "Play", filename: str) -> pathlib.Path:
 class Play(models.Model):
     title = models.CharField(max_length=65)
     description = models.TextField(max_length=255)
-    actors = models.ManyToManyField("Actor")
-    genres = models.ManyToManyField("Genre")
+    actors = models.ManyToManyField("Actor", related_name="plays")
+    genres = models.ManyToManyField("Genre", related_name="associated_plays")
     image = models.ImageField(null=True, upload_to=play_image_file_path)
 
     class Meta:
@@ -134,7 +134,7 @@ class Actor(models.Model):
     last_name = models.CharField(max_length=65)
 
     def __str__(self):
-        return self.first_name + " " + self.last_name
+        return self.full_name
 
     @property
     def full_name(self):
